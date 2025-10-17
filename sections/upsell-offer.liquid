@@ -1,0 +1,137 @@
+{% comment %}
+===========================================
+Upsell Offer Section
+-------------------------------------------
+Features:
+- Lets admin select a paid product and a free upsell product.
+- When user adds paid product to cart (AJAX), the free product is also added.
+- Free product quantity matches paid product quantity.
+===========================================
+{% endcomment %}
+
+<section class="upsell-offer-section">
+  <div class="upsell-offer-container">
+    {% assign paid_product = all_products[section.settings.paid_product_handle] %}
+    {% assign free_product = all_products[section.settings.free_product_handle] %}
+
+    {% if paid_product %}
+      <div class="upsell-product">
+        <h2>{{ paid_product.title }}</h2>
+        <img src="{{ paid_product.featured_image | img_url: '400x' }}" alt="{{ paid_product.title }}">
+        <p>{{ paid_product.price | money }}</p>
+
+        <form id="upsellAddToCartForm">
+          <input type="hidden" name="id" value="{{ paid_product.variants.first.id }}">
+          <input type="number" name="quantity" id="upsellQuantity" value="1" min="1">
+          <button type="submit" class="btn">Add to Cart</button>
+        </form>
+      </div>
+
+      {% if free_product %}
+        <div class="free-product-info">
+          <h3>🎁 You’ll receive this free item:</h3>
+          <div class="free-product">
+            <img src="{{ free_product.featured_image | img_url: '200x' }}" alt="{{ free_product.title }}">
+            <p>{{ free_product.title }}</p>
+          </div>
+        </div>
+      {% endif %}
+    {% else %}
+      <p>Please configure a paid product in the section settings.</p>
+    {% endif %}
+  </div>
+</section>
+
+<style>
+.upsell-offer-section {
+  padding: 40px 20px;
+  text-align: center;
+}
+.upsell-offer-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+.upsell-product img, .free-product img {
+  border-radius: 8px;
+  max-width: 100%;
+}
+.btn {
+  background-color: #000;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.free-product-info {
+  margin-top: 20px;
+  background: #f7f7f7;
+  padding: 15px;
+  border-radius: 8px;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.getElementById("upsellAddToCartForm");
+
+  if (form) {
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const quantity = parseInt(document.getElementById("upsellQuantity").value);
+      const paidProductId = form.querySelector('input[name="id"]').value;
+      const freeProductId = "{{ all_products[section.settings.free_product_handle].variants.first.id }}";
+
+      fetch("/cart/add.js", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: paidProductId, quantity: quantity })
+      })
+      .then(res => res.json())
+      .then(() => {
+        return fetch("/cart/add.js", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: freeProductId, quantity: quantity, properties: { "Free Gift": "Yes" } })
+        });
+      })
+      .then(res => res.json())
+      .then(() => {
+        return fetch("/cart.js");
+      })
+      .then(res => res.json())
+      .then(cart => {
+        alert("✅ Product and free gift added to cart!");
+        console.log(cart);
+      })
+      .catch(err => {
+        console.error("Error:", err);
+        alert("Something went wrong. Try again!");
+      });
+    });
+  }
+});
+</script>
+
+{% schema %}
+{
+  "name": "Upsell Offer",
+  "settings": [
+    {
+      "type": "product",
+      "id": "paid_product_handle",
+      "label": "Select Main (Paid) Product"
+    },
+    {
+      "type": "product",
+      "id": "free_product_handle",
+      "label": "Select Free Gift Product"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Upsell Offer Section"
+    }
+  ]
+}
+{% endschema %}

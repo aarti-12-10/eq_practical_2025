@@ -1,0 +1,63 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "t:sections.footer.name",
+  "type": "footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "text_VKKp6C": {
+          "type": "text",
+          "settings": {
+            "heading": "Talk about your store",
+            "subtext": "<p>Sea Level Swim features an extensive selection of precision contouring and body moulded swimsuits made from regenerated nylon. The result is a beautiful line up of luxurious high quality pieces that feel right for the times and designed to last.This is a demonstration of the Showcase theme for Shopify. Swimwear kindly donated by Sea Level Swim.</p>"
+          }
+        },
+        "link_list_4PAHmM": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Shop",
+            "menu": "shop"
+          }
+        },
+        "link_list_K4DqTy": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Help",
+            "menu": "help"
+          }
+        }
+      },
+      "block_order": [
+        "text_VKKp6C",
+        "link_list_4PAHmM",
+        "link_list_K4DqTy"
+      ],
+      "settings": {
+        "color_scheme": "scheme-1",
+        "newsletter_enable": true,
+        "newsletter_heading": "Newsletter",
+        "enable_follow_on_shop": true,
+        "show_social": true,
+        "enable_country_selector": true,
+        "enable_language_selector": true,
+        "payment_enable": true,
+        "show_policy": true,
+        "margin_top": 0,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

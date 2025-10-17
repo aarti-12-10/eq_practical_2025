@@ -1,0 +1,18 @@
+/* swatch lives in its own file for reusability of the swatch in swatch-input and dropdown */
+.swatch {
+  --swatch--size: var(--swatch-input--size, 4.4rem);
+ 
+  display: block;
+  width: var(--swatch--size);
+  max-width: 100%;
+  aspect-ratio: 64 / 99;
+  background: var(--swatch--background);
+  background-position: var(--swatch-focal-point, initial);
+  background-size: cover;
+
+}
+
+.swatch--square {
+  --swatch--border-radius: var(--swatch-input--border-radius, 0.2rem);
+}
+

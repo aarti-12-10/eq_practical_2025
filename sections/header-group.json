@@ -1,0 +1,113 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "t:sections.header.name",
+  "type": "header",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement-bar-0": {
+          "type": "announcement",
+          "settings": {
+            "text": "Black Friday Cyber Monday Sales!",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "announcement-bar-0"
+      ],
+      "settings": {
+        "auto_rotate": false,
+        "change_slides_speed": 5,
+        "color_scheme": "scheme-484d2b9f-6d54-4f18-bcaf-758deee927d4",
+        "show_line_separator": true,
+        "show_social": false,
+        "enable_country_selector": false,
+        "enable_language_selector": false
+      }
+    },
+    "header": {
+      "type": "header",
+      "disabled": true,
+      "settings": {
+        "logo_position": "middle-left",
+        "mobile_logo_position": "center",
+        "menu": "eq-practical-menu",
+        "menu_type_desktop": "mega",
+        "sticky_header_type": "on-scroll-up",
+        "show_line_separator": true,
+        "color_scheme": "scheme-1",
+        "menu_color_scheme": "scheme-1",
+        "enable_country_selector": true,
+        "enable_language_selector": true,
+        "enable_customer_avatar": true,
+        "margin_bottom": 0,
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    },
+    "mega_menu_EnXmhB": {
+      "type": "mega-menu",
+      "blocks": {
+        "mega_W6wwHa": {
+          "type": "mega",
+          "settings": {
+            "match_title": "New Arrivals",
+            "col1_title": "Shop",
+            "col1_menu": "shop",
+            "col2_title": "Collections",
+            "col2_menu": "collections",
+            "col3_title": "",
+            "col3_menu": "",
+            "img1": "shopify://shop_images/col-blackfriday.png",
+            "img1_link": "",
+            "img1_alt": "",
+            "img2": "shopify://shop_images/col-swimmer.png",
+            "img2_link": "",
+            "img2_alt": ""
+          }
+        }
+      },
+      "block_order": [
+        "mega_W6wwHa"
+      ],
+      "name": "Header Mega",
+      "settings": {
+        "logo": "shopify://shop_images/HOLA_1.svg",
+        "logo_hover": "shopify://shop_images/HOLA.svg",
+        "logo_alt": "",
+        "main_menu": "eq-practical-menu",
+        "show_search": true,
+        "show_account": true,
+        "show_cart": true,
+        "logo_width_desktop": 124,
+        "logo_width_mobile": 112,
+        "color_header_bg": "",
+        "color_nav_link": "#ffffff",
+        "color_nav_link_hover": "#ffffff",
+        "color_mega_bg": "",
+        "color_mega_border": "",
+        "color_heading": "",
+        "color_link": "",
+        "color_link_hover": "#121212",
+        "color_icon": "#ffffff",
+        "color_mobile_bg": "",
+        "custom_class": "mega-menus-header"
+      }
+    }
+  },
+  "order": [
+    "announcement-bar",
+    "header",
+    "mega_menu_EnXmhB"
+  ]
+}

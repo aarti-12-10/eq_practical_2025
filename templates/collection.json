@@ -1,0 +1,95 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "mega_menu_x9qAEN": {
+      "type": "mega-menu",
+      "blocks": {
+        "mega_Dapg7H": {
+          "type": "mega",
+          "disabled": true,
+          "settings": {
+            "match_title": "New Arrivals",
+            "col1_title": "Shop",
+            "col1_menu": "shop",
+            "col2_title": "Collections",
+            "col2_menu": "collections",
+            "col3_title": "",
+            "col3_menu": "",
+            "img1": "shopify://shop_images/col-blackfriday.png",
+            "img1_link": "",
+            "img1_alt": "",
+            "img2": "shopify://shop_images/col-swimmer.png",
+            "img2_link": "",
+            "img2_alt": ""
+          }
+        }
+      },
+      "block_order": [
+        "mega_Dapg7H"
+      ],
+      "disabled": true,
+      "name": "Header Mega",
+      "settings": {
+        "logo": "shopify://shop_images/HOLA.svg",
+        "logo_alt": "",
+        "main_menu": "eq-practical-menu",
+        "show_search": true,
+        "show_account": true,
+        "show_cart": true,
+        "logo_width_desktop": 200,
+        "logo_width_mobile": 140,
+        "color_header_bg": "",
+        "color_nav_link": "",
+        "color_nav_link_hover": "",
+        "color_mega_bg": "",
+        "color_mega_border": "",
+        "color_heading": "",
+        "color_link": "",
+        "color_link_hover": "",
+        "color_icon": "",
+        "color_mobile_bg": ""
+      }
+    },
+    "banner": {
+      "type": "main-collection-banner",
+      "settings": {
+        "show_collection_description": true,
+        "show_collection_image": false,
+        "color_scheme": "scheme-1"
+      }
+    },
+    "product-grid": {
+      "type": "main-collection-product-grid",
+      "settings": {
+        "products_per_page": 16,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "image_ratio": "adapt",
+        "image_shape": "default",
+        "show_secondary_image": false,
+        "show_vendor": false,
+        "show_rating": false,
+        "quick_add": "none",
+        "enable_filtering": true,
+        "filter_type": "horizontal",
+        "enable_sorting": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "mega_menu_x9qAEN",
+    "banner",
+    "product-grid"
+  ]
+}

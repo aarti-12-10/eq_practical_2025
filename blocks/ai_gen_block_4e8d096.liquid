@@ -1,0 +1,561 @@
+{% doc %}
+  @prompt
+    i want to need create this type section
+    Upsell Offer:
+    When the product is added to the cart, an additional free item should also be added automatically.
+    The quantity of the free item should match the quantity of the paid item.
+    The selection of the free item should be configurable at the product level in the admin panel.
+    AJAX Add to Cart:
+    Use AJAX for the 'Add to Cart' functionality.
+    Reference: Shopify AJAX API - Cart
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-upsell-container-{{ ai_gen_id }} {
+    padding: 20px;
+    background-color: {{ block.settings.background_color }};
+    border-radius: {{ block.settings.border_radius }}px;
+    margin: 20px 0;
+  }
+
+  .ai-upsell-content-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-upsell-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+
+  .ai-upsell-description-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 16px;
+  }
+
+  .ai-upsell-product-info-{{ ai_gen_id }} {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    background-color: {{ block.settings.product_card_bg }};
+    border-radius: {{ block.settings.product_card_radius }}px;
+    border: 1px solid {{ block.settings.product_card_border }};
+  }
+
+  .ai-upsell-product-image-{{ ai_gen_id }} {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ai-upsell-product-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-upsell-product-details-{{ ai_gen_id }} {
+    flex-grow: 1;
+  }
+
+  .ai-upsell-product-title-{{ ai_gen_id }} {
+    font-size: 16px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 4px;
+  }
+
+  .ai-upsell-product-price-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    opacity: 0.7;
+  }
+
+  .ai-upsell-free-badge-{{ ai_gen_id }} {
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: {{ block.settings.badge_bg_color }};
+    color: {{ block.settings.badge_text_color }};
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  .ai-upsell-form-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ai-upsell-quantity-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ai-upsell-quantity-label-{{ ai_gen_id }} {
+    font-size: 14px;
+    color: {{ block.settings.text_color }};
+    font-weight: 500;
+  }
+
+  .ai-upsell-quantity-input-{{ ai_gen_id }} {
+    width: 80px;
+    padding: 8px 12px;
+    border: 1px solid {{ block.settings.input_border_color }};
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .ai-upsell-button-{{ ai_gen_id }} {
+    padding: 14px 28px;
+    background-color: {{ block.settings.button_bg_color }};
+    color: {{ block.settings.button_text_color }};
+    border: none;
+    border-radius: {{ block.settings.button_radius }}px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .ai-upsell-button-{{ ai_gen_id }}:hover {
+    background-color: {{ block.settings.button_hover_bg_color }};
+  }
+
+  .ai-upsell-button-{{ ai_gen_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .ai-upsell-message-{{ ai_gen_id }} {
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .ai-upsell-message-{{ ai_gen_id }}.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .ai-upsell-message-{{ ai_gen_id }}.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  .ai-upsell-empty-state-{{ ai_gen_id }} {
+    padding: 40px 20px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-upsell-product-info-{{ ai_gen_id }} {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .ai-upsell-quantity-wrapper-{{ ai_gen_id }} {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .ai-upsell-quantity-input-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<product-upsell-{{ ai_gen_id }}
+  class="ai-upsell-container-{{ ai_gen_id }}"
+  data-product-id="{{ product.id }}"
+  data-free-product-id="{{ block.settings.free_product.id }}"
+  {{ block.shopify_attributes }}
+>
+  <div class="ai-upsell-content-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h3 class="ai-upsell-heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h3>
+    {% endif %}
+
+    {% if block.settings.description != blank %}
+      <div class="ai-upsell-description-{{ ai_gen_id }}">{{ block.settings.description }}</div>
+    {% endif %}
+
+    {% if block.settings.free_product != blank %}
+      <div class="ai-upsell-product-info-{{ ai_gen_id }}">
+        <div class="ai-upsell-product-image-{{ ai_gen_id }}">
+          {% if block.settings.free_product.featured_image %}
+            <img
+              src="{{ block.settings.free_product.featured_image | image_url: width: 160 }}"
+              alt="{{ block.settings.free_product.featured_image.alt | escape }}"
+              width="160"
+              height="160"
+              loading="lazy"
+            >
+          {% endif %}
+        </div>
+        <div class="ai-upsell-product-details-{{ ai_gen_id }}">
+          <h4 class="ai-upsell-product-title-{{ ai_gen_id }}">
+            {{ block.settings.free_product.title }}
+          </h4>
+          <div class="ai-upsell-product-price-{{ ai_gen_id }}">
+            <s>{{ block.settings.free_product.price | money }}</s>
+          </div>
+          <span class="ai-upsell-free-badge-{{ ai_gen_id }}">{{ block.settings.free_badge_text }}</span>
+        </div>
+      </div>
+
+      <form class="ai-upsell-form-{{ ai_gen_id }}">
+        <div class="ai-upsell-quantity-wrapper-{{ ai_gen_id }}">
+          <label class="ai-upsell-quantity-label-{{ ai_gen_id }}" for="quantity-{{ ai_gen_id }}">
+            {{ block.settings.quantity_label }}
+          </label>
+          <input
+            type="number"
+            id="quantity-{{ ai_gen_id }}"
+            name="quantity"
+            class="ai-upsell-quantity-input-{{ ai_gen_id }}"
+            value="1"
+            min="1"
+            max="10"
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="ai-upsell-button-{{ ai_gen_id }}"
+        >
+          {{ block.settings.button_text }}
+        </button>
+
+        <div class="ai-upsell-message-{{ ai_gen_id }}" style="display: none;"></div>
+      </form>
+    {% else %}
+      <div class="ai-upsell-empty-state-{{ ai_gen_id }}">
+        Please select a free product in the block settings
+      </div>
+    {% endif %}
+  </div>
+</product-upsell-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class ProductUpsell{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.form = this.querySelector('.ai-upsell-form-{{ ai_gen_id }}');
+        this.button = this.querySelector('.ai-upsell-button-{{ ai_gen_id }}');
+        this.message = this.querySelector('.ai-upsell-message-{{ ai_gen_id }}');
+        this.quantityInput = this.querySelector('.ai-upsell-quantity-input-{{ ai_gen_id }}');
+        this.productId = this.dataset.productId;
+        this.freeProductId = this.dataset.freeProductId;
+      }
+
+      connectedCallback() {
+        if (this.form) {
+          this.form.addEventListener('submit', this.handleSubmit.bind(this));
+        }
+      }
+
+      async handleSubmit(event) {
+        event.preventDefault();
+
+        if (!this.freeProductId) {
+          this.showMessage('Please configure a free product in the block settings', 'error');
+          return;
+        }
+
+        const quantity = parseInt(this.quantityInput.value) || 1;
+        this.setLoading(true);
+        this.hideMessage();
+
+        try {
+          const mainProductAdded = await this.addToCart(this.productId, quantity);
+          
+          if (mainProductAdded) {
+            const freeProductAdded = await this.addToCart(this.freeProductId, quantity, true);
+            
+            if (freeProductAdded) {
+              this.showMessage('{{ block.settings.success_message }}', 'success');
+              
+              if (typeof window.theme !== 'undefined' && window.theme.cart) {
+                window.theme.cart.refresh();
+              }
+              
+              document.dispatchEvent(new CustomEvent('cart:updated'));
+            }
+          }
+        } catch (error) {
+          this.showMessage(error.message || 'An error occurred. Please try again.', 'error');
+        } finally {
+          this.setLoading(false);
+        }
+      }
+
+      async addToCart(variantId, quantity, isFreeItem = false) {
+        try {
+          const formData = {
+            items: [{
+              id: variantId,
+              quantity: quantity,
+              properties: isFreeItem ? {
+                '_free_item': 'true',
+                '_upsell_offer': 'true'
+              } : {}
+            }]
+          };
+
+          const response = await fetch('/cart/add.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.description || 'Failed to add item to cart');
+          }
+
+          const data = await response.json();
+          return true;
+        } catch (error) {
+          if (!isFreeItem) {
+            throw error;
+          }
+          console.error('Error adding free item:', error);
+          return false;
+        }
+      }
+
+      setLoading(isLoading) {
+        this.button.disabled = isLoading;
+        this.button.textContent = isLoading ? '{{ block.settings.loading_text }}' : '{{ block.settings.button_text }}';
+      }
+
+      showMessage(text, type) {
+        this.message.textContent = text;
+        this.message.className = 'ai-upsell-message-{{ ai_gen_id }} ' + type;
+        this.message.style.display = 'block';
+      }
+
+      hideMessage() {
+        this.message.style.display = 'none';
+      }
+    }
+
+    customElements.define('product-upsell-{{ ai_gen_id }}', ProductUpsell{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product upsell offer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Special offer"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Add this product to your cart and get a free item automatically added!"
+    },
+    {
+      "type": "product",
+      "id": "free_product",
+      "label": "Free product"
+    },
+    {
+      "type": "text",
+      "id": "free_badge_text",
+      "label": "Free badge text",
+      "default": "FREE"
+    },
+    {
+      "type": "text",
+      "id": "quantity_label",
+      "label": "Quantity label",
+      "default": "Quantity"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button text",
+      "default": "Add to cart"
+    },
+    {
+      "type": "text",
+      "id": "loading_text",
+      "label": "Loading text",
+      "default": "Adding..."
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Products added to cart successfully!"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#f9f9f9"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#121212"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Text size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Product card"
+    },
+    {
+      "type": "color",
+      "id": "product_card_bg",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "product_card_border",
+      "label": "Border color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "range",
+      "id": "product_card_radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Free badge"
+    },
+    {
+      "type": "color",
+      "id": "badge_bg_color",
+      "label": "Background color",
+      "default": "#008060"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Background color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Hover background color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Input"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Border color",
+      "default": "#cccccc"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product upsell offer"
+    }
+  ]
+}
+{% endschema %}

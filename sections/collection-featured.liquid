@@ -1,0 +1,137 @@
+{% schema %}
+{
+  "name": "Collection Showcase",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Main Section Heading",
+      "default": "More for you. Tango with us."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection_block",
+      "name": "Collection Item",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Select Collection"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom Title",
+          "default": "Tango with me"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Custom Description",
+          "default": "Discover the alluring new tropical tango print, inspired by palm trees, beach escapes, & lush tropical settings."
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button Text",
+          "default": "Shop Now"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Dynamic Collection Showcase",
+      "category": "Collection"
+    }
+  ]
+}
+{% endschema %}
+
+<section class="dynamic-collection-section">
+  <div class="center section-header">
+    <h2>{{ section.settings.section_heading }}</h2>
+  </div>
+
+  <div class="collection-grid">
+    {% for block in section.blocks %}
+      {% assign col = collections[block.settings.collection] %}
+      {% if col %}
+        <div class="collection-card">
+          <a href="{{ col.url }}">
+            {% if col.image %}
+              <img src="{{ col.image | img_url: '600x600' }}" alt="{{ col.title }}">
+            {% elsif col.products.first %}
+              <img src="{{ col.products.first.featured_image | img_url: '600x600' }}" alt="{{ col.title }}">
+            {% endif %}
+          </a>
+          <div class="collection-info">
+            <h3>{{ block.settings.title }}</h3>
+            <p>{{ block.settings.description }}</p>
+            <a href="{{ col.url }}" class="shop-btn">{{ block.settings.button_text }}</a>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+.dynamic-collection-section {
+    padding: 90px;
+    background-color: #E8E4DF;
+}
+
+.section-header h2 {
+    font-size: 27px;
+    font-weight: 500;
+    margin-bottom: 40px;
+    color: #212121;
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.collection-card {
+  text-align: center;
+}
+
+.collection-card img {
+  width: 100%;
+  height: auto;
+}
+
+.collection-info {
+  padding: 20px;
+}
+
+.collection-info h3 {
+  font-size: 21px;
+  margin-bottom: 10px;
+  color: #212121;
+}
+
+.collection-info p.collection-info p.collection-info p {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 30px;
+    min-height: 50px;
+}
+.shop-btn {
+    color: #212121;
+    text-decoration: none;
+    font-size: 15px;
+    padding-bottom: 1px;
+    border-bottom: 2px solid;
+}
+
+@media screen and (max-width: 768px) {
+.dynamic-collection-section {
+    padding: 20px;
+}
+}
+</style>

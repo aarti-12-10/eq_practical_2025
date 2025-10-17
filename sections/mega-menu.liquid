@@ -1,0 +1,918 @@
+{% comment %}
+  Header + Mega Menu (Strict Match)
+  - Desktop: mega ONLY when strict title match AND real content (menus/images) exist
+  - Mobile: "+" ONLY when content exists; otherwise plain link
+  - Desktop: ≥1208px single row (logo | nav | icons)
+  - Tablet: 901–1207px two rows (logo+icons / nav)
+  - Mobile: ≤900px burger left, logo center, icons right
+{% endcomment %}
+
+{%- assign main = linklists[section.settings.main_menu] -%}
+<input id="mm-toggle" type="checkbox" hidden style="display:none">
+
+<header
+  class="manan-header {% if template.name != 'index' %}{{ section.settings.custom_class }}{% endif %}"
+  role="banner"
+  style="
+    --hdr-bg: {{ section.settings.color_header_bg | default: 'transparent' }};
+    --mega-bg: {{ section.settings.color_mega_bg   | default: '#f7f6f2' }};
+    --mega-border: {{ section.settings.color_mega_border | default: 'transparent' }};
+    --nav-link: {{ section.settings.color_nav_link | default: '#222222' }};
+    --nav-link-hover: {{ section.settings.color_nav_link_hover | default: '#0f172a' }};
+    --heading: {{ section.settings.color_heading | default: '#7a6a54' }};
+    --link: {{ section.settings.color_link | default: '#2a2a2a' }};
+    --link-hover: {{ section.settings.color_link_hover | default: '#7a6a54' }};
+    --icon: {{ section.settings.color_icon | default: '#222222' }};
+    --mobile-bg: {{ section.settings.color_mobile_bg | default: '#f7f6e8' }};
+  "
+>
+  <div class="manan-header__bar">
+    <div class="manan-header__inner">
+      <!-- ===== WRAPPER 1: LOGO (and burger on mobile) ===== -->
+      <div class="mh-logo">
+        <label for="mm-toggle" class="mm-burger" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path fill="currentColor" d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/>
+          </svg>
+        </label>
+
+        {% assign w_d = section.settings.logo_width_desktop | default: 200 %}
+        {% assign w_m = section.settings.logo_width_mobile | default: 140 %}
+        <a class="manan-header__logo" href="{{ routes.root_url }}" aria-label="{{ shop.name }}">
+          <div class="manan-logo-box" style="--lw: {{ w_d }}px; --lwm: {{ w_m }}px;">
+            {% if section.settings.logo != blank %}
+              {% assign alt_text = section.settings.logo_alt | default: shop.name %}
+              {% capture sizes_attr %}(max-width: 768px) {{ w_m }}px, {{ w_d }}px{% endcapture %}
+              {{
+                section.settings.logo
+                | image_url: width: 1600
+                | image_tag:
+                  alt: alt_text,
+                  loading: 'lazy',
+                  sizes: sizes_attr,
+                  widths: '120,140,160,180,200,220,240,260,280,300,320,360,400,480,560,640,720,840,960,1200,1600'
+              }}
+            {% else %}
+              {{ shop.name }}
+            {% endif %}
+          </div>
+          <div class="manan-logo-box hover" style="--lw: {{ w_d }}px; --lwm: {{ w_m }}px;">
+            {% if section.settings.logo_hover != blank %}
+              {% assign alt_text = section.settings.logo_alt | default: shop.name %}
+              {% capture sizes_attr %}(max-width: 768px) {{ w_m }}px, {{ w_d }}px{% endcapture %}
+              {{
+                section.settings.logo_hover
+                | image_url: width: 1600
+                | image_tag:
+                  alt: alt_text,
+                  loading: 'lazy',
+                  sizes: sizes_attr,
+                  widths: '120,140,160,180,200,220,240,260,280,300,320,360,400,480,560,640,720,840,960,1200,1600'
+              }}
+            {% endif %}
+          </div>
+        </a>
+      </div>
+
+      <!-- ===== WRAPPER 2: NAV ===== -->
+      <div class="mh-nav">
+        <nav class="manan-nav" aria-label="Primary">
+          {% if main and main.links.size > 0 %}
+            <ul class="manan-nav__list">
+              {% for item in main.links %}
+                {%- assign matched = blank -%}
+                {%- assign top_title = item.title | strip | downcase -%}
+                {%- for block in section.blocks -%}
+                  {%- if block.type == 'mega' -%}
+                    {%- assign blk_title = block.settings.match_title | strip | downcase -%}
+                    {%- if blk_title == top_title -%}
+                      {%- assign matched = block -%}
+                      {%- break -%}
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- endfor -%}
+
+                {%- assign has_mega = false -%}
+                {%- if matched != blank -%}
+                  {%- assign m1 = linklists[matched.settings.col1_menu] -%}
+                  {%- assign m2 = linklists[matched.settings.col2_menu] -%}
+                  {%- assign m3 = linklists[matched.settings.col3_menu] -%}
+                  {%- if m1 and m1.links.size > 0 -%}{%- assign has_mega = true -%}{%- endif -%}
+                  {%- if m2 and m2.links.size > 0 -%}{%- assign has_mega = true -%}{%- endif -%}
+                  {%- if m3 and m3.links.size > 0 -%}{%- assign has_mega = true -%}{%- endif -%}
+                  {%- if matched.settings.img1 != blank or matched.settings.img2 != blank -%}
+                    {%- assign has_mega = true -%}
+                  {%- endif -%}
+                {%- endif -%}
+
+                <li class="manan-nav__item{% if has_mega %} has-mega{% endif %}" data-top="{{ item.title | escape }}">
+                  <a class="manan-nav__link" href="{{ item.url }}">{{ item.title }}</a>
+
+                  {% if has_mega %}
+                    <div class="manan-mega">
+                      <div class="manan-mega__inner">
+                        <div class="manan-mega__cols">
+                          <div class="manan-mega__col">
+                            {% if matched.settings.col1_title != blank %}
+                              <h4 class="manan-mega__heading">{{ matched.settings.col1_title }}</h4>
+                            {% endif %}
+                            {% if m1 and m1.links.size > 0 %}
+                              <ul class="manan-mega__ul">
+                                {% for l in m1.links %}
+                                  <li>
+                                    <a href="{{ l.url }}">{{ l.title }}</a>
+                                    {% if l.links.size > 0 %}
+                                      <ul class="manan-mega__lvl3">
+                                        {% for g in l.links %}
+                                          <li>
+                                            <a href="{{ g.url }}">{{ g.title }}</a>
+                                          </li>
+                                        {% endfor %}
+                                      </ul>
+                                    {% endif %}
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            {% endif %}
+                          </div>
+
+                          <div class="manan-mega__col">
+                            {% if matched.settings.col2_title != blank %}
+                              <h4 class="manan-mega__heading">{{ matched.settings.col2_title }}</h4>
+                            {% endif %}
+                            {% if m2 and m2.links.size > 0 %}
+                              <ul class="manan-mega__ul">
+                                {% for l in m2.links %}
+                                  <li>
+                                    <a href="{{ l.url }}">{{ l.title }}</a>
+                                    {% if l.links.size > 0 %}
+                                      <ul class="manan-mega__lvl3">
+                                        {% for g in l.links %}
+                                          <li>
+                                            <a href="{{ g.url }}">{{ g.title }}</a>
+                                          </li>
+                                        {% endfor %}
+                                      </ul>
+                                    {% endif %}
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            {% endif %}
+                          </div>
+
+                          <div class="manan-mega__col">
+                            {% if matched.settings.col3_title != blank %}
+                              <h4 class="manan-mega__heading">{{ matched.settings.col3_title }}</h4>
+                            {% endif %}
+                            {% if m3 and m3.links.size > 0 %}
+                              <ul class="manan-mega__ul">
+                                {% for l in m3.links %}
+                                  <li>
+                                    <a href="{{ l.url }}">{{ l.title }}</a>
+                                    {% if l.links.size > 0 %}
+                                      <ul class="manan-mega__lvl3">
+                                        {% for g in l.links %}
+                                          <li>
+                                            <a href="{{ g.url }}">{{ g.title }}</a>
+                                          </li>
+                                        {% endfor %}
+                                      </ul>
+                                    {% endif %}
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            {% endif %}
+                          </div>
+                        </div>
+
+                        <div class="manan-mega__visuals">
+                          {% if matched.settings.img1 != blank %}
+                            <a class="manan-mega__visual" href="{{ matched.settings.img1_link | default: '#' }}">
+                              <img
+                                src="{{ matched.settings.img1 | image_url: width: 720 }}"
+                                alt="{{ matched.settings.img1_alt | escape }}"
+                              >
+                            </a>
+                          {% endif %}
+                          {% if matched.settings.img2 != blank %}
+                            <a class="manan-mega__visual" href="{{ matched.settings.img2_link | default: '#' }}">
+                              <img
+                                src="{{ matched.settings.img2 | image_url: width: 720 }}"
+                                alt="{{ matched.settings.img2_alt | escape }}"
+                              >
+                            </a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </nav>
+      </div>
+
+      <!-- ===== WRAPPER 3: ICONS ===== -->
+      <div class="mh-icons">
+        <div class="manan-header__icons header__icons{% if section.settings.enable_country_selector or section.settings.enable_language_selector %} header__icons--localization header-localization{% endif %}">
+          <div class="desktop-localization-wrapper">
+            {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+              <localization-form class="small-hide medium-hide" data-prevent-hide>
+                {%- form 'localization', id: 'HeaderCountryForm', class: 'localization-form' -%}
+                  <div>
+                    <h2 class="visually-hidden" id="HeaderCountryLabel">{{ 'localization.country_label' | t }}</h2>
+                    {%- render 'country-localization', localPosition: 'HeaderCountry' -%}
+                  </div>
+                {%- endform -%}
+              </localization-form>
+            {% endif %}
+
+            {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+              <localization-form class="small-hide medium-hide" data-prevent-hide>
+                {%- form 'localization', id: 'HeaderLanguageForm', class: 'localization-form' -%}
+                  <div>
+                    <h2 class="visually-hidden" id="HeaderLanguageLabel">{{ 'localization.language_label' | t }}</h2>
+                    {%- render 'language-localization', localPosition: 'HeaderLanguage' -%}
+                  </div>
+                {%- endform -%}
+              </localization-form>
+            {%- endif -%}
+          </div>
+
+          {% render 'header-search', input_id: 'Search-In-Modal' %}
+
+          {%- if shop.customer_accounts_enabled -%}
+            <a
+              href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}"
+              class="header__icon header__icon--account link focus-inset{% if section.settings.menu != blank %} small-hide{% endif %}"
+              rel="nofollow"
+            >
+              {%- if section.settings.enable_customer_avatar -%}
+                <account-icon>
+                  {%- if customer and customer.has_avatar? -%}
+                    {{ customer | avatar }}
+                  {%- else -%}
+                    <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+                  {%- endif -%}
+                </account-icon>
+              {%- else -%}
+                <span class="svg-wrapper">{{ 'icon-account.svg' | inline_asset_content }}</span>
+              {%- endif -%}
+              <span class="visually-hidden">
+                {%- liquid
+                  if customer
+                    echo 'customer.account_fallback' | t
+                  else
+                    echo 'customer.log_in' | t
+                  endif
+                -%}
+              </span>
+            </a>
+          {%- endif -%}
+
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when '@app' -%}
+                {% render block %}
+            {%- endcase -%}
+          {%- endfor -%}
+
+          <a
+            href="{{ routes.cart_url }}"
+            class="header__icon header__icon--cart link focus-inset"
+            id="cart-icon-bubble"
+          >
+            {% if cart == empty %}
+              <span class="svg-wrapper">{{ 'icon-cart-empty.svg' | inline_asset_content }}</span>
+            {% else %}
+              <span class="svg-wrapper">{{ 'icon-cart.svg' | inline_asset_content }}</span>
+            {% endif %}
+            <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
+            {%- if cart != empty -%}
+              <div class="cart-count-bubble">
+                {%- if cart.item_count < 100 -%}
+                  <span aria-hidden="true">{{ cart.item_count }}</span>
+                {%- endif -%}
+                <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+              </div>
+            {%- endif -%}
+          </a>
+        </div>
+      </div>
+      <!-- ===== /WRAPPERS ===== -->
+    </div>
+  </div>
+
+  <!-- MOBILE DRAWER -->
+  <label for="mm-toggle" class="mm-overlay" aria-hidden="true"></label>
+  <aside class="mm-drawer" aria-label="Mobile menu">
+    <div class="mm-head">
+      <div class="manan-logo-box hovers" style="--lw: {{ w_d }}px; --lwm: {{ w_m }}px;">
+        {% if section.settings.logo_hover != blank %}
+          {% assign alt_text = section.settings.logo_alt | default: shop.name %}
+          {% capture sizes_attr %}(max-width: 768px) {{ w_m }}px, {{ w_d }}px{% endcapture %}
+          {{
+            section.settings.logo_hover
+            | image_url: width: 1600
+            | image_tag:
+              alt: alt_text,
+              loading: 'lazy',
+              sizes: sizes_attr,
+              widths: '120,140,160,180,200,220,240,260,280,300,320,360,400,480,560,640,720,840,960,1200,1600'
+          }}
+        {% endif %}
+      </div>
+      <label for="mm-toggle" class="mm-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path fill="currentColor" d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z"/>
+        </svg>
+      </label>
+    </div>
+
+    {% if main and main.links.size > 0 %}
+      <div class="mm-list">
+        {% for item in main.links %}
+          {%- assign matched = blank -%}
+          {%- assign top_title = item.title | strip | downcase -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'mega' -%}
+              {%- assign blk_title = block.settings.match_title | strip | downcase -%}
+              {%- if blk_title == top_title -%}
+                {%- assign matched = block -%}
+                {%- break -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- assign has_mega = false -%}
+          {%- if matched != blank -%}
+            {%- assign m1 = linklists[matched.settings.col1_menu] -%}
+            {%- assign m2 = linklists[matched.settings.col2_menu] -%}
+            {%- assign m3 = linklists[matched.settings.col3_menu] -%}
+            {%- if m1 and m1.links.size > 0 -%}{%- assign has_mega = true -%}{%- endif -%}
+            {%- if m2 and m2.links.size > 0 -%}{%- assign has_mega = true -%}{%- endif -%}
+            {%- if m3 and m3.links.size > 0 -%}{%- assign has_mega = true -%}{%- endif -%}
+            {%- if matched.settings.img1 != blank or matched.settings.img2 != blank -%}
+              {%- assign has_mega = true -%}
+            {%- endif -%}
+          {%- endif -%}
+
+          {% if has_mega %}
+            <details class="mm-item">
+              <summary>
+                <a href="{{ item.url }}">{{ item.title }}</a><span class="mm-exp"></span>
+              </summary>
+              <div class="mm-body">
+                <div class="mm-visuals">
+                  {% if matched.settings.img1 != blank -%}
+                    <a href="{{ matched.settings.img1_link | default: '#' }}"
+                      ><img
+                        src="{{ matched.settings.img1 | image_url: width: 900 }}"
+                        alt="{{ matched.settings.img1_alt | escape }}"
+                    ></a>
+                  {%- endif %}
+                  {% if matched.settings.img2 != blank -%}
+                    <a href="{{ matched.settings.img2_link | default: '#' }}"
+                      ><img
+                        src="{{ matched.settings.img2 | image_url: width: 900 }}"
+                        alt="{{ matched.settings.img2_alt | escape }}"
+                    ></a>
+                  {%- endif %}
+                </div>
+
+                {% if m1 and m1.links.size > 0 %}
+                  <details class="mm-sub">
+                    <summary>
+                      <span class="mm-label">{{ matched.settings.col1_title }}</span><span class="mm-exp"></span>
+                    </summary>
+                    <ul>
+                      {% for l in m1.links %}
+                        <li>
+                          <a href="{{ l.url }}">{{ l.title }}</a>
+                          {% if l.links.size > 0 %}
+                            <ul class="mm-lvl3">
+                              {% for g in l.links %}
+                                <li>
+                                  <a href="{{ g.url }}">{{ g.title }}</a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                {% endif %}
+
+                {% if m2 and m2.links.size > 0 %}
+                  <details class="mm-sub">
+                    <summary>
+                      <span class="mm-label">{{ matched.settings.col2_title }}</span><span class="mm-exp"></span>
+                    </summary>
+                    <ul>
+                      {% for l in m2.links %}
+                        <li>
+                          <a href="{{ l.url }}">{{ l.title }}</a>
+                          {% if l.links.size > 0 %}
+                            <ul class="mm-lvl3">
+                              {% for g in l.links %}
+                                <li>
+                                  <a href="{{ g.url }}">{{ g.title }}</a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                {% endif %}
+
+                {% if m3 and m3.links.size > 0 %}
+                  <details class="mm-sub">
+                    <summary>
+                      <span class="mm-label">{{ matched.settings.col3_title }}</span><span class="mm-exp"></span>
+                    </summary>
+                    <ul>
+                      {% for l in m3.links %}
+                        <li>
+                          <a href="{{ l.url }}">{{ l.title }}</a>
+                          {% if l.links.size > 0 %}
+                            <ul class="mm-lvl3">
+                              {% for g in l.links %}
+                                <li>
+                                  <a href="{{ g.url }}">{{ g.title }}</a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                {% endif %}
+              </div>
+            </details>
+          {% else %}
+            <div class="mm-item mm-link-only">
+              <a class="mm-only-link" href="{{ item.url }}">{{ item.title }}</a>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </aside>
+</header>
+
+{% schema %}
+{
+  "name": "Header Mega",
+  "settings": [
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "image_picker", "id": "logo_hover", "label": "Logo Hover" },
+    { "type": "text", "id": "logo_alt", "label": "Logo alt text" },
+
+    { "type": "link_list", "id": "main_menu", "label": "Main menu (top bar)" },
+    { "type": "checkbox", "id": "show_search", "label": "Show search icon", "default": true },
+    { "type": "checkbox", "id": "show_account", "label": "Show account icon", "default": true },
+    { "type": "checkbox", "id": "show_cart", "label": "Show cart icon", "default": true },
+
+    {
+      "type": "range",
+      "id": "logo_width_desktop",
+      "label": "Logo width (desktop)",
+      "min": 80,
+      "max": 360,
+      "step": 4,
+      "unit": "px",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "logo_width_mobile",
+      "label": "Logo width (mobile)",
+      "min": 60,
+      "max": 260,
+      "step": 4,
+      "unit": "px",
+      "default": 140
+    },
+
+    { "type": "color", "id": "color_header_bg", "label": "Header background" },
+    { "type": "color", "id": "color_nav_link", "label": "Nav link color" },
+    { "type": "color", "id": "color_nav_link_hover", "label": "Nav link hover color" },
+
+    { "type": "color", "id": "color_mega_bg", "label": "Mega menu background" },
+    { "type": "color", "id": "color_mega_border", "label": "Mega menu border" },
+
+    { "type": "color", "id": "color_heading", "label": "Column heading color" },
+    { "type": "color", "id": "color_link", "label": "Link color" },
+    { "type": "color", "id": "color_link_hover", "label": "Link hover color" },
+
+    { "type": "color", "id": "color_icon", "label": "Icon color" },
+    { "type": "color", "id": "color_mobile_bg", "label": "Mobile drawer background" },
+    { "type": "text", "id": "custom_class", "label": "Custom Class" }
+  ],
+  "blocks": [
+    {
+      "type": "mega",
+      "name": "Mega for item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "match_title",
+          "label": "Match top-level title",
+          "info": "Exactly as in main menu (case-insensitive, trims spaces)"
+        },
+
+        { "type": "text", "id": "col1_title", "label": "Column 1 heading" },
+        { "type": "link_list", "id": "col1_menu", "label": "Column 1 menu" },
+
+        { "type": "text", "id": "col2_title", "label": "Column 2 heading" },
+        { "type": "link_list", "id": "col2_menu", "label": "Column 2 menu" },
+
+        { "type": "text", "id": "col3_title", "label": "Column 3 heading" },
+        { "type": "link_list", "id": "col3_menu", "label": "Column 3 menu" },
+
+        { "type": "image_picker", "id": "img1", "label": "Right image 1" },
+        { "type": "text", "id": "img1_link", "label": "Image 1 link URL" },
+        { "type": "text", "id": "img1_alt", "label": "Image 1 alt" },
+
+        { "type": "image_picker", "id": "img2", "label": "Right image 2" },
+        { "type": "text", "id": "img2_link", "label": "Image 2 link URL" },
+        { "type": "text", "id": "img2_alt", "label": "Image 2 alt" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Header Mega" }]
+}
+{% endschema %}
+{% if template.name == 'index' %}
+  <style>
+     .manan-header {
+       position: relative;
+       z-index: 50;
+       background: var(--hdr-bg);
+       position: absolute !important;
+       width: 100%;
+     }
+    .manan-nav__item.mega-open > .manan-nav__link{ color:#000; }
+  </style>
+{% endif %}
+
+{% stylesheet %}
+  /* Default states */
+  .manan-logo-box {
+    display: block;
+    opacity: 1;
+    transition: opacity .25s ease, visibility .25s ease;
+  }
+
+  .manan-logo-box.hover {
+    display: none;
+    opacity: 0;
+    transition: opacity .25s ease, visibility .25s ease;
+  }
+
+  /* Modern CSS :has() handles all hover logic */
+  @supports selector(:has(*)) {
+
+    /* Header white background when any mega item hovered */
+    .manan-header:has(li.manan-nav__item.has-mega:hover) {
+      background: #fff !important;
+      transition: background .3s ease;
+    }
+
+    /* Swap logos */
+    .manan-header:has(li.manan-nav__item.has-mega:hover) .manan-logo-box {
+      display: none;
+      opacity: 0;
+    }
+
+    .manan-header:has(li.manan-nav__item.has-mega:hover) .manan-logo-box.hover {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Make nav links black */
+    .manan-header:has(li.manan-nav__item.has-mega:hover) .manan-nav__link {
+      color: #000 !important;
+    }
+
+    /* Make header icons svg stroke black */
+    .manan-header:has(li.manan-nav__item.has-mega:hover) .manan-header__icons svg {
+      stroke: #000 !important;
+      transition: stroke .3s ease;
+    }
+  }
+
+  /* optional: smooth transition for nav link colors */
+  .manan-nav__link {
+    transition: color .3s ease;
+  }
+
+
+        .manan-header__icons.header__icons { grid-area: auto !important; }
+        :root { --mh-pad: 18px; --page-width: 1280px; }
+
+        /* Frame */
+        .manan-header{ position:relative; z-index:50; background:var(--hdr-bg); }
+        .manan-header__bar{
+          border-bottom:1px solid var(--mega-border);
+          padding-top: 10px;
+          }
+
+        /* ===== Default ≥1208px → single row (logo | nav | icons) ===== */
+        .manan-header__inner{
+          max-width:var(--page-width);
+          margin:0 auto;
+          padding:0 var(--mh-pad);
+          display:grid;
+          grid-template-columns: minmax(160px,auto) 1fr minmax(140px,220px);
+          grid-template-areas: "logo nav icons";
+          align-items:center;
+          gap:10px;
+        }
+
+        .mh-logo{  grid-area:logo;  display:flex; align-items:center; gap:10px; }
+        .mh-nav{   grid-area:nav; }
+        .mh-icons{ grid-area:icons; display:flex; justify-content:flex-end; color:var(--icon); }
+
+        /* Logo sizes */
+        .manan-logo-box{ width: var(--lw); }
+        .manan-logo-box img{ width:100%; height:auto; display:block; image-rendering:auto; }
+
+        /* Burger */
+        .mm-burger{ display:none; color:var(--icon); cursor:pointer; }
+
+        .mm-burger svg {
+            width: 30px;
+            height: 30px;
+        }
+        /* Desktop nav center */
+        .manan-nav{ display:flex; justify-content:center; }
+        .manan-nav__list{ display:flex; gap:28px; list-style:none; margin:0; padding:0; justify-content:center; }
+        .manan-nav__link{ display:inline-block; padding:14px 2px; text-decoration:none; color:var(--nav-link); }
+        .manan-nav__link:hover{ color:var(--nav-link-hover); }
+
+        /* Mega menu should not be clipped by li */
+        .manan-nav__item.has-mega { position: unset !important; }
+       li.manan-nav__item{ padding: 4px 0; }
+
+        /* Mega panel */
+       .manan-mega{
+        display: none;
+        position: absolute;
+        left: 0; right: 0;
+        top: calc(100% - 1px);   /* header border overlap → gap avoid */
+        width: 100%;
+        background: var(--mega-bg);
+        border-top: 1px solid var(--mega-border);
+        box-shadow: 0 10px 30px rgba(0,0,0,.06);
+        z-index: 1000;           /* always above header */
+      }
+        .manan-nav__item.has-mega:hover > .manan-mega { display:block; }
+        .manan-mega.active{ display:block; }
+      /* allow JS to show panel too */
+        .manan-nav__item.mega-open > .manan-mega{ display:block; }
+
+        .manan-mega__inner{ max-width:var(--page-width); margin:0 auto; padding:26px var(--mh-pad) 30px; display:grid; grid-template-columns:1fr 440px; gap:28px; }
+        .manan-mega__cols{ display:grid; grid-template-columns:repeat(3, minmax(180px, 1fr)); gap:36px; }
+        .manan-mega__heading{ margin:0 0 10px; font-size:14px; letter-spacing:.06em; text-transform:uppercase; color:var(--heading); font-weight:700; }
+        .manan-mega__ul{ list-style:none; margin:0; padding:0; }
+        .manan-mega__ul > li{ margin:8px 0; }
+        .manan-mega__lvl3{ list-style:none; margin:6px 0 0 14px; padding:0; }
+        .manan-mega__lvl3 li{ margin:5px 0; }
+        .manan-mega__ul a{ text-decoration:none; color:var(--link); font-size:15px; }
+        .manan-mega__ul a:hover{ color:var(--link-hover); }
+        .manan-mega__visuals{ display:grid; grid-template-columns:1fr 1fr; gap:18px; align-content:start; }
+        .manan-mega__visual img{ display:block; width:100%; height:100%; border-radius:14px; object-fit:cover; }
+
+        /* ===== Tablet 901–1207px → top: logo+icons, bottom: nav ===== */
+         @media (min-width:901px) {
+             .focus-none {
+                  box-shadow: none !important;
+                  outline: 0 !important;
+                  position: relative;
+              }
+             section#shopify-section-template--25549953007898__slideshow_PxAJp9 {
+                  top: -75px;
+                  position: relative;
+              }
+              .header__icon .icon{
+                  stroke:var(--nav-link);
+              }
+              header.manan-header.mega-menus-header {
+                  background: #000;
+              }
+          }
+        @media (min-width:901px) and (max-width:1207px){
+          .manan-header__inner{
+            /* grid-template-columns: minmax(160px,auto) 1fr;
+            grid-template-areas:
+              "logo icons"
+              "nav  nav"; */
+              grid-template-columns: auto;
+            row-gap: 6px;
+          }
+          .mh-logo{ justify-self:start;padding-top: 15px;}
+          .mh-icons{ justify-self:end; }
+          .mh-nav{   justify-self:center; }
+        }
+
+        /* ===== Mobile ≤900px → one line: burger left, logo center, icons right ===== */
+        @media (max-width:900px){
+          .manan-header__inner{
+            padding:0 5px !important;
+          }
+          .header__icons{
+            padding-right:0px !important;
+          }
+          .mm-head {
+              display: flex;
+              align-items: center;
+              justify-content: space-between !important;
+              padding: 14px var(--mh-pad) 8px;
+          }
+          .manan-logo-box.hovers {
+              display: block !important;
+              opacity: 1;
+              transition: opacity .25s
+          ease, visibility .25s
+          ease;
+          }
+          .manan-header__icons svg{
+            stroke:#fff;
+          }
+          .manan-nav{ display:none !important; }       /* hide desktop nav */
+          .manan-logo-box{ width: var(--lwm); }
+
+          .manan-header__inner{
+              grid-template-columns: 1fr 1fr 1fr;        /* left | center | right */
+              grid-template-areas: "logo logo icons";    /* logo center area */
+              position: relative;
+              align-items: center;
+              padding-top: 0px;
+          }
+          .mh-logo{ grid-area:logo; justify-self:right; }
+
+          .mm-burger {
+              display: inline-flex !important;
+              position: absolute;
+              left: var(--mh-pad);
+              top: 35%;
+              transform: translateY(-50%);
+          }
+          .mm-close {
+            color: #000 !important;
+          }
+        }
+
+        /* Mobile drawer */
+        .mm-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:98; }
+        .mm-drawer{ position:fixed; inset:0 auto 0 0; width:min(92vw, 420px); background:var(--mobile-bg); transform:translateX(-100%); transition:transform .28s ease, box-shadow .28s ease; z-index:99; overflow:auto; }
+        .mm-head{ display:flex; align-items:center; justify-content:flex-end; padding:14px var(--mh-pad) 8px; }
+        .mm-close{ color:var(--icon); cursor:pointer; display:inline-flex; }
+        .mm-list{ padding:0 var(--mh-pad) 18px; }
+        .mm-item{ border-bottom:1px solid var(--mega-border); }
+        .mm-item > summary{ list-style:none; display:flex; align-items:center; gap:8px; padding:14px 0; cursor:pointer; }
+        .mm-item > summary::-webkit-details-marker{ display:none; }
+        .mm-item > summary a{ flex:1; color:var(--link); text-decoration:none; font-weight:600; }
+        .mm-exp{ width:20px; height:20px; position:relative; }
+        .mm-exp:before, .mm-exp:after{ content:""; position:absolute; inset:0; margin:auto; width:12px; height:2px; background:var(--link); }
+        .mm-exp:after{ transform:rotate(90deg); transition:.2s; }
+        .mm-item[open] > summary .mm-exp:after{ transform:rotate(0); }
+
+        .mm-link-only{ padding:14px 0; }
+        .mm-only-link{ color: var(--link); text-decoration:none; font-weight:600; }
+        .mm-body{ padding:0 0 10px 0; }
+        .mm-visuals{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:8px 0; }
+        .mm-visuals img{ width:100%; height:100%; border-radius:10px; display:block; object-fit:cover; }
+        .mm-sub{ border-left:2px solid var(--mega-border); margin:6px 0 8px 0; padding-left:10px; }
+        .mm-sub > summary{ list-style:none; display:flex; justify-content:space-between; align-items:center; padding:10px 0; cursor:pointer; }
+
+        /* Toggle → show drawer/overlay */
+        #mm-toggle:checked + .manan-header .mm-overlay{ display:block; }
+        #mm-toggle:checked + .manan-header .mm-drawer{ transform:translateX(0); box-shadow:0 0 0 1px rgba(0,0,0,.03), 14px 0 30px rgba(0,0,0,.2); }
+
+        /* Drawer link colors (visited na bane purple) */
+        .mm-only-link,
+        .mm-item > summary a,
+        .mm-sub > summary .mm-label,
+        .mm-body a{ color: var(--link); text-decoration: none; }
+        .mm-only-link:visited,
+        .mm-item > summary a:visited,
+        .mm-body a:visited{ color: var(--link); }
+        .mm-only-link:hover,
+        .mm-item > summary a:hover,
+        .mm-sub > summary .mm-label:hover,
+        .mm-body a:hover{ color: var(--link-hover); }
+
+        .manan-nav__item.mega-open > .manan-nav__link{ color:var(--nav-link-hover); }
+        .manan-mega { top: calc(100% - 1px); z-index: 99; }
+        @media (hover:hover) and (pointer:fine){
+      .manan-nav__item.has-mega:hover > .manan-mega{ display:block; }
+    }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var CLOSE_DELAY = 120;
+
+    var hoverMQ = window.matchMedia('(hover:hover)');
+    var fineMQ = window.matchMedia('(pointer:fine)');
+    var useMouse = () => hoverMQ.matches && fineMQ.matches;
+
+    var ctrl = new AbortController();
+    function unbind() {
+      ctrl.abort();
+      ctrl = new AbortController();
+    }
+    function close(li) {
+      li.classList.remove('mega-open');
+      li.querySelector('.manan-mega')?.classList.remove('active');
+      li.querySelector('.manan-nav__link')?.setAttribute('aria-expanded', 'false');
+    }
+    function closeAll() {
+      document.querySelectorAll('.manan-nav__item.mega-open').forEach(close);
+    }
+
+    function bind() {
+      unbind();
+      var signal = ctrl.signal;
+
+      var enterEv = useMouse() ? 'mouseenter' : 'pointerenter';
+      var leaveEv = useMouse() ? 'mouseleave' : 'pointerleave';
+
+      document.querySelectorAll('.manan-nav__item.has-mega').forEach(function (li) {
+        var link = li.querySelector('.manan-nav__link');
+        var panel = li.querySelector('.manan-mega');
+        if (!panel) return;
+
+        var timer;
+
+        function open() {
+          if (timer) {
+            clearTimeout(timer);
+            timer = null;
+          }
+          document.querySelectorAll('.manan-nav__item.mega-open').forEach(function (o) {
+            if (o !== li) close(o);
+          });
+          li.classList.add('mega-open');
+          panel.classList.add('active');
+          link?.setAttribute('aria-expanded', 'true');
+        }
+        function closeLater() {
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(function () {
+            close(li);
+          }, CLOSE_DELAY);
+        }
+
+        li.addEventListener(enterEv, open, { signal });
+        li.addEventListener(
+          leaveEv,
+          function (e) {
+            if (e.relatedTarget && li.contains(e.relatedTarget)) return;
+            closeLater();
+          },
+          { signal }
+        );
+
+        panel.addEventListener(enterEv, open, { signal });
+        panel.addEventListener(
+          leaveEv,
+          function (e) {
+            if (e.relatedTarget && li.contains(e.relatedTarget)) return;
+            closeLater();
+          },
+          { signal }
+        );
+      });
+
+      // outside/esc → close
+      document.addEventListener(
+        'click',
+        function (e) {
+          if (!e.target.closest('.manan-nav__item.has-mega')) closeAll();
+        },
+        { signal }
+      );
+      document.addEventListener(
+        'keydown',
+        function (e) {
+          if (e.key === 'Escape') closeAll();
+        },
+        { signal }
+      );
+    }
+
+    bind();
+    // re-bind when emulation toggles or window resizes
+    hoverMQ.addEventListener('change', bind);
+    fineMQ.addEventListener('change', bind);
+    window.addEventListener('resize', bind);
+  })();
+{% endjavascript %}

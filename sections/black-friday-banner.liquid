@@ -1,0 +1,277 @@
+{% comment %}
+  Black Friday Text Slider with Background Images
+  Displays sliding text over background images
+{% endcomment %}
+
+<style>
+  .black-friday-section {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 400px;
+  }
+
+  .background-images {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+  }
+
+  .bg-image-item {
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .bg-image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .text-slider-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .text-slider-container {
+    display: flex;
+    gap: 60px;
+    animation: slideText 55s linear infinite;
+    white-space: nowrap;
+  }
+
+  .text-slider-container:hover {
+    animation-play-state: paused;
+  }
+
+  .slider-text {
+    font-size: 6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    flex-shrink: 0;
+  }
+
+  .slider-text.filled {
+    color: white;
+  }
+
+  .slider-text.outlined {
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.5);
+    text-stroke: 2px rgba(255, 255, 255, 0.5);
+  }
+
+  @keyframes slideText {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Tablet */
+  @media (max-width: 1024px) {
+    .black-friday-section {
+      height: 350px;
+    }
+
+    .background-images {
+      animation: slideImages 12s linear infinite;
+    }
+
+    .bg-image-item {
+      width: 50%;
+      min-width: 50%;
+    }
+
+    .slider-text {
+      font-size: 4.5rem;
+      letter-spacing: 3px;
+    }
+
+    .text-slider-container {
+      gap: 50px;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .black-friday-section {
+      height: 300px;
+    }
+
+    .background-images {
+      animation: slideImages 10s linear infinite;
+    }
+
+    .bg-image-item {
+      width: 100%;
+      min-width: 100%;
+    }
+
+    .slider-text {
+      font-size: 3rem;
+      letter-spacing: 2px;
+    }
+
+    .text-slider-container {
+      gap: 40px;
+    }
+
+    .slider-text.outlined {
+      -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.5);
+      text-stroke: 1.5px rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .black-friday-section {
+      height: 250px;
+    }
+
+    .slider-text {
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .text-slider-container {
+      gap: 30px;
+    }
+
+    .slider-text.outlined {
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5);
+      text-stroke: 1px rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  @keyframes slideImages {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+</style>
+
+<section class="black-friday-section">
+  {% comment %} Background Images {% endcomment %}
+  <div class="background-images">
+    {% for block in section.blocks limit: 4 %}
+      <div class="bg-image-item">
+        {% if block.settings.image %}
+          {{ block.settings.image | image_url: width: 800 | image_tag: loading: 'lazy', alt: block.settings.alt_text }}
+        {% else %}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  {% comment %} Sliding Text Overlay {% endcomment %}
+  <div class="text-slider-overlay">
+    <div class="text-slider-container">
+      {% comment %} First set {% endcomment %}
+      <span class="slider-text filled">{{ section.settings.text_1 }}</span>
+      <span class="slider-text outlined">{{ section.settings.text_2 }}</span>
+      <span class="slider-text filled">{{ section.settings.text_3 }}</span>
+      <span class="slider-text outlined">{{ section.settings.text_4 }}</span>
+
+      {% comment %} Duplicate set {% endcomment %}
+      <span class="slider-text filled">{{ section.settings.text_1 }}</span>
+      <span class="slider-text outlined">{{ section.settings.text_2 }}</span>
+      <span class="slider-text filled">{{ section.settings.text_3 }}</span>
+      <span class="slider-text outlined">{{ section.settings.text_4 }}</span>
+
+      {% comment %} Third set {% endcomment %}
+      <span class="slider-text filled">{{ section.settings.text_1 }}</span>
+      <span class="slider-text outlined">{{ section.settings.text_2 }}</span>
+      <span class="slider-text filled">{{ section.settings.text_3 }}</span>
+      <span class="slider-text outlined">{{ section.settings.text_4 }}</span>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Black Friday Banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text_1",
+      "label": "Text 1 (Filled)",
+      "default": "Black Friday"
+    },
+    {
+      "type": "text",
+      "id": "text_2",
+      "label": "Text 2 (Outlined)",
+      "default": "Black Friday"
+    },
+    {
+      "type": "text",
+      "id": "text_3",
+      "label": "Text 3 (Filled)",
+      "default": "Black Friday"
+    },
+    {
+      "type": "text",
+      "id": "text_4",
+      "label": "Text 4 (Outlined)",
+      "default": "Black Friday"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Background Image",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Image Alt Text",
+          "default": "Black Friday"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Black Friday Banner",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
