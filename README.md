@@ -1,3 +1,6 @@
+Document : https://docs.google.com/document/d/1bfhprsOxt572HzodJSM2rLWZ_bioR66t9ta0-_e_jDA/edit?tab=t.0
+
+
 # Shopify Take Home Assignment
 
 ## Overview
